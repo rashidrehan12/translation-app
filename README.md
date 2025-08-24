@@ -209,7 +209,7 @@ If you have any questions or issues:
 
 1. **Check existing issues** on [GitHub Issues](https://github.com/rashidrehan12/translation-app/issues)
 2. **Create a new issue** with detailed description
-3. **Email**: rashidrehan122000@example.com
+3. **Email**: rashidrehan122000@gmail.com
 
 ## 🚀 Future Enhancements
 
@@ -244,3 +244,4 @@ If you have any questions or issues:
 ---
 
 **Happy Translating!** 🌍🤖✨
+
