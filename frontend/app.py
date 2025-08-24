@@ -4,7 +4,7 @@ from gtts import gTTS
 from io import BytesIO
 import os 
 
-# Determine the backend URL based on environment
+
 # Determine the backend URL based on environment
 def get_backend_url():
     # For deployment, use the environment variable
@@ -12,85 +12,6 @@ def get_backend_url():
     return backend_url
 
 BACKEND_URL = get_backend_url()
-
-# Update all your API call functions to use BACKEND_URL
-def check_server_connection():
-    try:
-        response = requests.get(f"{BACKEND_URL}/", timeout=3)
-        return response.status_code == 200
-    except:
-        return False
-
-def check_groq_connection():
-    try:
-        response = requests.get(f"{BACKEND_URL}/check_groq", timeout=5)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return {"status": "error", "message": "Cannot connect to server"}
-    except:
-        return {"status": "error", "message": "Connection failed"}
-
-def get_available_models():
-    try:
-        response = requests.get(f"{BACKEND_URL}/models", timeout=3)
-        if response.status_code == 200:
-            return response.json().get("models", [])
-        else:
-            return ["llama3-8b-8192", "llama3-70b-8192"]
-    except:
-        return ["llama3-8b-8192", "llama3-70b-8192"]
-
-def get_available_languages():
-    try:
-        response = requests.get(f"{BACKEND_URL}/languages", timeout=3)
-        if response.status_code == 200:
-            languages = response.json().get("languages", [])
-            return languages if languages else get_default_languages()
-        else:
-            return get_default_languages()
-    except:
-        return get_default_languages()
-
-def get_default_languages():
-    return ["English", "French", "Spanish", "German", "Italian", "Portuguese", 
-            "Chinese", "Japanese", "Korean", "Hindi", "Arabic", "Russian"]
-
-def get_translation(input_text, language, model_name):
-    if not input_text or not input_text.strip():
-        return {"status": "error", "message": "Text is required"}
-    
-    json_body = {
-        "text": input_text.strip(),
-        "language": language,
-        "model": model_name
-    }
-
-    try:
-        response = requests.post(
-            f"{BACKEND_URL}/translate", 
-            json=json_body, 
-            timeout=20
-        )
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        return {"status": "error", "message": str(e)}
-
-def text_to_speech(text, language):
-    try:
-        lang_code = {
-            "English": "en", "French": "fr", "Spanish": "es", "German": "de",
-            "Italian": "it", "Portuguese": "pt", "Chinese": "zh", "Japanese": "ja",
-            "Korean": "ko", "Hindi": "hi", "Arabic": "ar", "Russian": "ru"
-        }.get(language, 'en')
-        
-        tts = gTTS(text, lang=lang_code)
-        audio_file = BytesIO()
-        tts.write_to_fp(audio_file)
-        audio_file.seek(0)
-        return audio_file
-    except Exception as e:
-        return None
     
     
 # Page configuration
@@ -397,32 +318,42 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Functions
+# Update all your API call functions to use BACKEND_URL
 def check_server_connection():
     try:
-        response = requests.get("http://127.0.0.1:8000/", timeout=3)
+        response = requests.get(f"{BACKEND_URL}/", timeout=3)
         return response.status_code == 200
     except:
         return False
 
 def check_groq_connection():
     try:
-        response = requests.get("http://127.0.0.1:8000/check_groq", timeout=5)
-        return response.json()
+        response = requests.get(f"{BACKEND_URL}/check_groq", timeout=5)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"status": "error", "message": "Cannot connect to server"}
     except:
-        return {"status": "error", "message": "Cannot connect to server"}
+        return {"status": "error", "message": "Connection failed"}
 
 def get_available_models():
     try:
-        response = requests.get("http://127.0.0.1:8000/models", timeout=3)
-        return response.json().get("models", [])
+        response = requests.get(f"{BACKEND_URL}/models", timeout=3)
+        if response.status_code == 200:
+            return response.json().get("models", [])
+        else:
+            return ["llama3-8b-8192", "llama3-70b-8192"]
     except:
         return ["llama3-8b-8192", "llama3-70b-8192"]
 
 def get_available_languages():
     try:
-        response = requests.get("http://127.0.0.1:8000/languages", timeout=3)
-        languages = response.json().get("languages", [])
-        return languages if languages else get_default_languages()
+        response = requests.get(f"{BACKEND_URL}/languages", timeout=3)
+        if response.status_code == 200:
+            languages = response.json().get("languages", [])
+            return languages if languages else get_default_languages()
+        else:
+            return get_default_languages()
     except:
         return get_default_languages()
 
@@ -442,7 +373,7 @@ def get_translation(input_text, language, model_name):
 
     try:
         response = requests.post(
-            "http://127.0.0.1:8000/translate", 
+            f"{BACKEND_URL}/translate", 
             json=json_body, 
             timeout=20
         )
