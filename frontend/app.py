@@ -5,6 +5,7 @@ from io import BytesIO
 import os 
 
 # Determine the backend URL based on environment
+# Determine the backend URL based on environment
 def get_backend_url():
     # For deployment, use the environment variable
     backend_url = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
@@ -26,14 +27,9 @@ def check_groq_connection():
         if response.status_code == 200:
             return response.json()
         else:
-            # If the endpoint doesn't exist, try to check models instead
-            models_response = requests.get(f"{BACKEND_URL}/models", timeout=5)
-            if models_response.status_code == 200:
-                return {"status": "success", "message": "Server connection active"}
-            else:
-                return {"status": "error", "message": "Cannot connect to server"}
+            return {"status": "error", "message": "Cannot connect to server"}
     except:
-        return {"status": "warning", "message": "Connection attempt failed"}
+        return {"status": "error", "message": "Connection failed"}
 
 def get_available_models():
     try:
@@ -56,6 +52,10 @@ def get_available_languages():
     except:
         return get_default_languages()
 
+def get_default_languages():
+    return ["English", "French", "Spanish", "German", "Italian", "Portuguese", 
+            "Chinese", "Japanese", "Korean", "Hindi", "Arabic", "Russian"]
+
 def get_translation(input_text, language, model_name):
     if not input_text or not input_text.strip():
         return {"status": "error", "message": "Text is required"}
@@ -70,13 +70,29 @@ def get_translation(input_text, language, model_name):
         response = requests.post(
             f"{BACKEND_URL}/translate", 
             json=json_body, 
-            timeout=30  # Increased timeout for translation
+            timeout=20
         )
         return response.json()
     except requests.exceptions.RequestException as e:
         return {"status": "error", "message": str(e)}
 
-
+def text_to_speech(text, language):
+    try:
+        lang_code = {
+            "English": "en", "French": "fr", "Spanish": "es", "German": "de",
+            "Italian": "it", "Portuguese": "pt", "Chinese": "zh", "Japanese": "ja",
+            "Korean": "ko", "Hindi": "hi", "Arabic": "ar", "Russian": "ru"
+        }.get(language, 'en')
+        
+        tts = gTTS(text, lang=lang_code)
+        audio_file = BytesIO()
+        tts.write_to_fp(audio_file)
+        audio_file.seek(0)
+        return audio_file
+    except Exception as e:
+        return None
+    
+    
 # Page configuration
 st.set_page_config(
     page_title="RoboTranslate - Friendly AI Translator",

@@ -39,6 +39,7 @@ WORKING_MODELS = [
 
 # Language mapping with emojis
 LANGUAGE_MAP = {
+    "English": {"code": "en", "emoji": "🇺🇸"},
     "French": {"code": "fr", "emoji": "🇫🇷"},
     "Hindi": {"code": "hi", "emoji": "🇮🇳"},
     "Spanish": {"code": "es", "emoji": "🇪🇸"},
@@ -48,7 +49,6 @@ LANGUAGE_MAP = {
     "Dutch": {"code": "nl", "emoji": "🇳🇱"},
     "Russian": {"code": "ru", "emoji": "🇷🇺"},
     "Arabic": {"code": "ar", "emoji": "🇸🇦"},
-    "Urdu": {"code": "ur", "emoji": "🇵🇰"},
     "Chinese": {"code": "zh", "emoji": "🇨🇳"},
     "Japanese": {"code": "ja", "emoji": "🇯🇵"},
     "Korean": {"code": "ko", "emoji": "🇰🇷"},
@@ -66,7 +66,7 @@ async def health_check():
 async def get_models():
     return {"models": WORKING_MODELS}
 
-# Get available languages - FIXED ENDPOINT
+# Get available languages
 @app.get("/languages")
 async def get_languages():
     return {"languages": list(LANGUAGE_MAP.keys())}
@@ -78,29 +78,20 @@ async def check_groq():
     if not groq_api_key:
         return {"status": "error", "message": "GROQ_API_KEY not found in environment variables"}
     
-    working_models = []
-    
-    # Test each model
-    for model_name in WORKING_MODELS:
-        try:
-            test_model = ChatGroq(model=model_name, groq_api_key=groq_api_key, timeout=10)
-            prompt = ChatPromptTemplate.from_template("Say hello in French")
-            chain = prompt | test_model | StrOutputParser()
-            result = chain.invoke({})
-            working_models.append(model_name)
-        except Exception as e:
-            logger.warning(f"Model {model_name} failed: {e}")
-    
-    if working_models:
+    try:
+        test_model = ChatGroq(model="llama3-8b-8192", groq_api_key=groq_api_key, timeout=10)
+        prompt = ChatPromptTemplate.from_template("Say hello in French")
+        chain = prompt | test_model | StrOutputParser()
+        result = chain.invoke({})
         return {
             "status": "success", 
-            "message": f"Found {len(working_models)} working models",
-            "working_models": working_models,
+            "message": "Groq API is working",
+            "working_models": WORKING_MODELS,
         }
-    else:
+    except Exception as e:
         return {
             "status": "error", 
-            "message": "No working models found",
+            "message": f"Groq API test failed: {str(e)}",
         }
 
 # Translation request model
@@ -113,6 +104,7 @@ class TranslationRequest(BaseModel):
 def mock_translator(text, language):
     """Mock translator for when Groq API fails"""
     translations = {
+        "English": f"English translation: {text}",
         "French": f"Traduction française: {text}",
         "Hindi": f"हिंदी अनुवाद: {text}",
         "Spanish": f"Traducción española: {text}",
@@ -122,7 +114,6 @@ def mock_translator(text, language):
         "Dutch": f"Nederlandse vertaling: {text}",
         "Russian": f"Русский перевод: {text}",
         "Arabic": f"الترجمة العربية: {text}",
-        "Urdu": f"اردو ترجمہ: {text}",
         "Chinese": f"中文翻译: {text}",
         "Japanese": f"日本語訳: {text}",
         "Korean": f"한국어 번역: {text}",
@@ -131,12 +122,12 @@ def mock_translator(text, language):
     }
     return translations.get(language, f"Translation to {language}: {text}")
 
-# Main translation endpoint - FIXED VALIDATION
+# Main translation endpoint
 @app.post("/translate")
 async def translate_text(request: TranslationRequest):
     groq_api_key = os.getenv("GROQ_API_KEY")
     
-    # Validate input - FIXED VALIDATION
+    # Validate input
     if not request.text or not request.text.strip():
         return {
             "output": "Error: Text is required",
@@ -212,5 +203,5 @@ async def translate_text(request: TranslationRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
