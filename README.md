@@ -129,10 +129,9 @@ translation-app/
 1. **Open the application** in your web browser
 2. **Type your text** in the input box
 3. **Select target language** from the dropdown menu
-4. **Choose AI model** (Llama 3 8B, Llama 3 70B, or Gemma)
-5. **Click "Activate Translation"** button
-6. **View the translation** in the robot speech bubble
-7. **Listen to translation** using the audio player
+4. **Click "Activate Translation"** button
+5. **View the translation** in the robot speech bubble
+6. **Listen to translation** using the audio player
 
 ## 🌍 Supported Languages
 
@@ -172,7 +171,7 @@ curl -X POST "https://translation-backend-rzn5.onrender.com/translate" \
   -d '{
     "text": "Hello, how are you?",
     "language": "Spanish",
-    "model": "llama3-8b-8192"
+    "model": "gemma2-9b-it"
   }'
 ```
 
@@ -244,4 +243,5 @@ If you have any questions or issues:
 ---
 
 **Happy Translating!** 🌍🤖✨
+
 
