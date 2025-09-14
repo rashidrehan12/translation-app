@@ -31,9 +31,7 @@ app.add_middleware(
 )
 
 # List of available Groq models
-WORKING_MODELS = [
-    "llama3-8b-8192",
-    "llama3-70b-8192", 
+WORKING_MODEL = [ 
     "gemma2-9b-it",
 ]
 
@@ -64,7 +62,7 @@ async def health_check():
 # Get available models
 @app.get("/models")
 async def get_models():
-    return {"models": WORKING_MODELS}
+    return {"models": WORKING_MODEL}
 
 # Get available languages
 @app.get("/languages")
@@ -79,14 +77,14 @@ async def check_groq():
         return {"status": "error", "message": "GROQ_API_KEY not found in environment variables"}
     
     try:
-        test_model = ChatGroq(model="llama3-8b-8192", groq_api_key=groq_api_key, timeout=10)
+        test_model = ChatGroq(model="gemma2-9b-it", groq_api_key=groq_api_key, timeout=10)
         prompt = ChatPromptTemplate.from_template("Say hello in French")
         chain = prompt | test_model | StrOutputParser()
         result = chain.invoke({})
         return {
             "status": "success", 
             "message": "Groq API is working",
-            "working_models": WORKING_MODELS,
+            "working_model": WORKING_MODEL,
         }
     except Exception as e:
         return {
@@ -98,7 +96,7 @@ async def check_groq():
 class TranslationRequest(BaseModel):
     text: str
     language: str
-    model: Optional[str] = "llama3-8b-8192"
+    model: Optional[str] = "gemma2-9b-it"
 
 # Mock translator for fallback
 def mock_translator(text, language):
@@ -147,8 +145,8 @@ async def translate_text(request: TranslationRequest):
         }
     
     # Validate model selection
-    if request.model not in WORKING_MODELS:
-        request.model = "llama3-8b-8192"
+    if request.model not in WORKING_MODEL:
+        request.model = "gemma2-9b-it"
     
     # Try Groq API first
     if groq_api_key:
