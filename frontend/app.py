@@ -342,9 +342,9 @@ def get_available_models():
         if response.status_code == 200:
             return response.json().get("models", [])
         else:
-            return ["llama3-8b-8192", "llama3-70b-8192"]
+            return ["gemma2-9b-it"]
     except:
-        return ["llama3-8b-8192", "llama3-70b-8192"]
+        return ["gemma2-9b-it"]
 
 def get_available_languages():
     try:
@@ -460,9 +460,9 @@ def render_sidebar():
         with col1:
             st.markdown("**Languages**")
             st.markdown("##### 12+")
-        with col2:
-            st.markdown("**AI Models**")
-            st.markdown("##### 2")
+        # with col2:
+        #     st.markdown("**AI Models**")
+        #     st.markdown("##### 2")
         
         return selected_model, enable_audio
 
