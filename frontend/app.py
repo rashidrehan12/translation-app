@@ -342,9 +342,9 @@ def get_available_models():
         if response.status_code == 200:
             return response.json().get("models", [])
         else:
-            return ["gemma2-9b-it"]
+            return ["llama-3.1-8b-instant"]
     except:
-        return ["gemma2-9b-it"]
+        return ["llama-3.1-8b-instant"]
 
 def get_available_languages():
     try:
